@@ -1,0 +1,52 @@
+#include <Thermistor.h>
+#include <LiquidCrystal.h>
+
+// Configuração do display LCD
+LiquidCrystal lcd(7, 8, 9, 10, 11, 12); // RS, EN, D4, D5, D6, D7 
+
+// Configuração dos pinos dos termistores
+const int termistor1Pin = A0;
+const int termistor2Pin = A1;
+
+// Configuração dos termistores
+Thermistor termistor1(termistor1Pin, 10000, 10000, 3950, 25); // Pino, Rpull, resistência termistor em temperatura ambiente, Beta, temperatura ambiente
+Thermistor termistor2(termistor2Pin, 10000, 10000, 3950, 25);
+void setup() {
+  // Inicializa o LCD
+  lcd.begin(24, 4);
+
+  // Inicializa a comunicação serial
+  Serial.begin(9600);
+
+  // Exibe mensagem inicial no LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Medindo Temperaturas");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  // Leitura das temperaturas
+  float temp1 = termistor1.readCelsius();
+  float temp2 = termistor2.readCelsius();
+
+  // Exibe as temperaturas no LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Temp 1: ");
+  lcd.print(temp1, 2);
+  lcd.print(" C");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Temp 2: ");
+  lcd.print(temp2, 2);
+  lcd.print(" C");
+
+  // Envia os dados pela serial
+  Serial.print(millis()); // Tempo em ms
+  Serial.print(",");
+  Serial.print(temp1, 2);
+  Serial.print(",");
+  Serial.println(temp2, 2);
+
+  delay(1000); // Atualiza a cada 1 segundo
+}
