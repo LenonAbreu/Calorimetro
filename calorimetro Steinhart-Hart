@@ -62,3 +62,27 @@ void loop() {
 
   delay(1000); // Atualização a cada 1 segundo
 }
+// Função para calcular a média das leituras e converter para temperatura
+float calcularMediaLeitura(int pino, float resistorPullDown) {
+  float soma = 0;
+
+  for (int i = 0; i < numLeituras; i++) {
+    int leituraAnalogica = analogRead(pino);
+
+    // Converte a leitura analógica para resistência do termistor
+    float resistencia = resistorPullDown * ((1023.0 / leituraAnalogica) - 1.0);
+
+    // Calcula a temperatura em Kelvin usando Steinhart-Hart
+    float lnR = log(resistencia);
+    float temperaturaKelvin = 1.0 / (A + B * lnR + C * pow(lnR, 3));
+
+    // Converte para Celsius
+    float temperaturaCelsius = temperaturaKelvin - 273.15;
+
+    soma += temperaturaCelsius;
+    delay(10); // Pequeno atraso para estabilizar as leituras
+  }
+
+  // Retorna a média das temperaturas
+  return soma / numLeituras;
+}
