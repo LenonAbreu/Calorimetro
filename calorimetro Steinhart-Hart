@@ -1,0 +1,64 @@
+#include <LiquidCrystal.h>
+
+// Configuração do display LCD (RS, EN, D4, D5, D6, D7)
+LiquidCrystal lcd(12, 11, 6, 5, 4, 3);
+
+// Pinos dos termistores
+const int termistor1Pin = A0;
+const int termistor2Pin = A1;
+
+// Resistores de pull-down (em ohms)
+const float resistorPullDown1 = 10000.0; // Resistor para o Termistor 1
+const float resistorPullDown2 = 10000.0; // Resistor para o Termistor 2
+
+// Coeficientes de Steinhart-Hart para os termistores
+const float A = 0.001129148;     // Coeficiente A
+const float B = 0.000234125;     // Coeficiente B
+const float C = 0.0000000876741; // Coeficiente C
+
+// Configuração para média das leituras
+const int numLeituras = 10; // Número de leituras para cálculo da média
+
+void setup() {
+  // Inicializa o LCD
+  lcd.begin(24, 4);
+
+  // Inicializa a comunicação serial
+  Serial.begin(9600);
+
+  // Mensagem inicial no LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Inicializando...");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  // Calcula as médias das leituras para ambos os termistores
+  float media1 = calcularMediaLeitura(termistor1Pin, resistorPullDown1);
+  float media2 = calcularMediaLeitura(termistor2Pin, resistorPullDown2);
+
+  // Exibe as temperaturas no LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Temp 1: ");
+  lcd.print(media1, 1);
+  lcd.print(" C");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Temp 2: ");
+  lcd.print(media2, 1);
+  lcd.print(" C");
+
+  // Calcula o tempo em segundos
+  unsigned long tempoMillis = millis();
+  float tempoSegundos = tempoMillis / 1000.0;
+
+  // Envia os dados para a saída serial
+  Serial.print(tempoSegundos, 1); // Tempo com uma casa decimal
+  Serial.print(",");
+  Serial.print(media1, 1); // Temperatura 1
+  Serial.print(",");
+  Serial.println(media2, 1); // Temperatura 2
+
+  delay(1000); // Atualização a cada 1 segundo
+}
